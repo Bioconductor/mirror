@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -eo pipefail
 IFS=$'\n\t'
 
 if [[ -z $GITHUB_TOKEN ]]; then
@@ -8,11 +8,13 @@ if [[ -z $GITHUB_TOKEN ]]; then
   exit 1
 fi
 
-svn_url="https://hedgehog.fhcrc.org/bioconductor/trunk/madman/Rpacks"
+set -u
 
 function parse_last_revision {
   grep '^r[0-9]' | tail -n 1 | awk '{ print $1 }'
 }
+
+svn_url="https://hedgehog.fhcrc.org/bioconductor/trunk/madman/Rpacks"
 
 if [[ -s .last_revision ]]; then
   revision=$(cat .last_revision)
@@ -42,15 +44,16 @@ if [[ ! -z $last_revision ]]; then
   echo $last_revision > .last_revision
 fi
 
-echo "$changed_directories"
+bioconductor_yaml="https://hedgehog.fhcrc.org/bioconductor/trunk/bioconductor.org/config.yaml"
+
+devel_version=$(svn cat $bioconductor_yaml | \
+    awk -F'"' '$0 ~ "^devel_version: " { print $2 }')
+
+mainfest_packages=$(svn cat $svn_url/bioc_${devel_version}.manifest | \
+    awk '$0 ~ "^Package: " { print $2 }')
 
 API="https://api.github.com/"
 TOKEN_STRING="Authorization: token $GITHUB_TOKEN"
-
-# https://developer.github.com/v3/repos/#list-organization-repositories
-bioc_repos=$(curl -H ${TOKEN_STRING} $API/orgs/bioconductor/repos | \
-             grep '"name": ' | \
-             sed 's/.*: "\(.*\)",/\1/')
 
 # found via curl -H $TOKEN_STRING $API/orgs/bioconductor/teams
 readonly_team_id=1389965
@@ -63,19 +66,17 @@ for project in $changed_directories; do
       git push origin master
     popd
   else
-    if $(echo $bioc_repos | grep -q -w $project); then
-      echo "$project already exists on Github without a mirror, skipping!"
-    else
-      echo "Cloning $project"
+    if $(echo $mainfest_packages | grep -q -w $project); then
+      echo "$project is in manifest, cloning $project"
       git svn clone ${svn_url}/$project $project
       pushd $project
-        echo "Creating new repo for $project"
+        echo "Creating new Github Repository for $project"
         # https://developer.github.com/v3/repos/#create
-        curl -H $TOKEN_STRING --request POST --data "{\"name\":\"$project\",\"homepage\":\"http://bioconductor.org/packages/devel/bioc/html/${project}.html\",\"has_issues\":\"false\",\"has_wiki\":\"false\",\"has_downloads\":\"false\",\"team_id\":\"${readonly_team_id}\"}" $API/orgs/bioconductor/repos
+        echo curl -H $TOKEN_STRING --request POST --data "{\"name\":\"$project\",\"homepage\":\"http://bioconductor.org/packages/devel/bioc/html/${project}.html\",\"has_issues\":\"false\",\"has_wiki\":\"false\",\"has_downloads\":\"false\",\"team_id\":\"${readonly_team_id}\"}" $API/orgs/bioconductor/repos
         echo "Pushing $project to Github"
-        git svn rebase
-        git remote add origin git@github.com:bioconductor/$project.git
-        git push -u origin master
+        #git svn rebase
+        #git remote add origin git@github.com:bioconductor/$project.git
+        #git push -u origin master
       popd
     fi
   fi
