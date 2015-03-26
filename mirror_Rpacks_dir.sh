@@ -10,7 +10,7 @@ fi
 
 set -u
 
-function parse_last_revision {
+parse_last_revision() {
   grep '^r[0-9]' | tail -n 1 | awk '{ print $1 }'
 }
 
@@ -58,25 +58,45 @@ TOKEN_STRING="Authorization: token $GITHUB_TOKEN"
 # found via curl -H $TOKEN_STRING $API/orgs/bioconductor/teams
 readonly_team_id=1389965
 
+create_github_repo() {
+  project=$1
+  echo "Creating new Github Repository for $project"
+  # https://developer.github.com/v3/repos/#create
+  echo curl -H $TOKEN_STRING --request POST --data \
+    "{
+      \"name\":\"$project\",
+      \"homepage\":\"http://bioconductor.org/packages/devel/bioc/html/${project}.html\",
+      \"has_issues\":\"false\",
+      \"has_wiki\":\"false\",
+      \"has_downloads\":\"false\",
+      \"team_id\":\"${readonly_team_id}\"
+    }" \
+  $API/orgs/bioconductor/repos
+  echo "Pushing $project to Github"
+  #git svn rebase
+  #git remote add origin git@github.com:bioconductor/$project.git
+  #git push -u origin master
+}
+
 for project in $changed_directories; do
   if [[ -d $project ]]; then
     echo "Updating $project"
     pushd $project
-      git svn rebase
-      git push origin master
+      if $(git remote | grep -q -w origin); then
+        # has origin remote already setup
+        git svn rebase
+        git push origin master
+      else
+        # no remote set, so create a new repo and set the remote
+        create_github_repo $project
+      fi
     popd
   else
     if $(echo $mainfest_packages | grep -q -w $project); then
       echo "$project is in manifest, cloning $project"
       git svn clone ${svn_url}/$project $project
       pushd $project
-        echo "Creating new Github Repository for $project"
-        # https://developer.github.com/v3/repos/#create
-        echo curl -H $TOKEN_STRING --request POST --data "{\"name\":\"$project\",\"homepage\":\"http://bioconductor.org/packages/devel/bioc/html/${project}.html\",\"has_issues\":\"false\",\"has_wiki\":\"false\",\"has_downloads\":\"false\",\"team_id\":\"${readonly_team_id}\"}" $API/orgs/bioconductor/repos
-        echo "Pushing $project to Github"
-        #git svn rebase
-        #git remote add origin git@github.com:bioconductor/$project.git
-        #git push -u origin master
+        create_github_repo $project
       popd
     fi
   fi
