@@ -52,50 +52,49 @@ devel_version=$(svn cat $bioconductor_yaml | \
 mainfest_packages=$(svn cat $svn_url/bioc_${devel_version}.manifest | \
     awk '$0 ~ "^Package: " { print $2 }')
 
-API="https://api.github.com/"
+API="https://api.github.com"
 TOKEN_STRING="Authorization: token $GITHUB_TOKEN"
 
 # found via curl -H $TOKEN_STRING $API/orgs/bioconductor/teams
-readonly_team_id=1389965
+#readonly_team_id=1389965
+#\"team_id\":\"${readonly_team_id}\"
 
 create_github_repo() {
   project=$1
   echo "Creating new Github Repository for $project"
   # https://developer.github.com/v3/repos/#create
-  echo curl -H $TOKEN_STRING --request POST --data \
+  curl -H "$TOKEN_STRING" --request POST --data \
     "{
       \"name\":\"$project\",
       \"homepage\":\"http://bioconductor.org/packages/devel/bioc/html/${project}.html\",
       \"has_issues\":\"false\",
       \"has_wiki\":\"false\",
-      \"has_downloads\":\"false\",
-      \"team_id\":\"${readonly_team_id}\"
+      \"has_downloads\":\"false\"
     }" \
-  $API/orgs/bioconductor/repos
+  $API/orgs/bioconductor-mirror/repos
   echo "Pushing $project to Github"
-  #git svn rebase
-  #git remote add origin git@github.com:bioconductor/$project.git
-  #git push -u origin master
+  git svn rebase
+  git remote add origin git@github.com:bioconductor-mirror/$project.git
+  git push -u origin master
 }
 
 for project in $changed_directories; do
   if [[ -d $project ]]; then
     echo "Updating $project"
     pushd $project
-      if $(git remote | grep -q -w origin); then
-        # has origin remote already setup
-        git svn rebase
-        git push origin master
-      else
+      if ! $(git remote | grep -q -w origin) ; then
         # no remote set, so create a new repo and set the remote
         create_github_repo $project
       fi
+      git svn rebase
+      git push origin master
     popd
   else
     if $(echo $mainfest_packages | grep -q -w $project); then
       echo "$project is in manifest, cloning $project"
       git svn clone ${svn_url}/$project $project
       pushd $project
+        #bfg --strip-blobs-bigger-than 100M
         create_github_repo $project
       popd
     fi
