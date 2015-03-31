@@ -2,7 +2,7 @@
 ###############################################################################
 # By Jim Hester
 # Created: 2015 Mar 31 10:17:20 AM
-# Last Modified: 2015 Mar 31 02:36:07 PM
+# Last Modified: 2015 Mar 31 04:27:57 PM
 # Title:update_git.py
 # Purpose:Update git mirror from svn revision
 ###############################################################################
@@ -12,6 +12,8 @@ import os
 import subprocess
 import re
 from contextlib import contextmanager
+import sys
+sys.tracebacklimit=0
 
 @contextmanager
 def pushd(newDir):
@@ -22,20 +24,15 @@ def pushd(newDir):
 
 def parse_revision_info(lines):
   packages = set()
-  prev_type = None
   path_re = re.compile('^ +[AMR] /(.*)/{}/([^/]*)'.format(args.prefix))
   for line in lines.split("\n"):
     path_search = path_re.search(line)
     if path_search:
       package_type = path_search.group(1)
-      if prev_type != None and package_type != prev_type:
-        raise Exception("Inconsistent package types")
-      else:
-        prev_type = package_type
       package = path_search.group(2)
-      packages.add(package)
+      packages.add((package, package_type))
 
-  return list(packages), prev_type
+  return list(packages)
 
 def current_branch(directory='.'):
   output = subprocess.check_output(["git", "status", "--porcelain", "-b"], cwd=directory)
@@ -88,9 +85,9 @@ def reformat_branch_name(name):
   else:
     return None
 
-def track_branch(project, svn_branch, git_branch):
+def track_branch(package, svn_branch, git_branch):
   subprocess.check_call(['git', 'config', '--add', 'svn-remote.{}.url'.format(git_branch),
-                         '/'.join([args.svn, 'branches', svn_branch, args.prefix, project])])
+                         '/'.join([args.svn, 'branches', svn_branch, args.prefix, package])])
   subprocess.check_call(['git', 'config', '--add', 'svn-remote.{}.fetch'.format(git_branch),
                          ':refs/remotes/git-svn-{}'.format(git_branch)])
 
@@ -135,11 +132,11 @@ def main():
   revision_info = subprocess.check_output(["svn", "log", "--verbose", "--stop-on-copy", "-r",
                                    args.revision, args.svn])
 
-  packages, package_type = parse_revision_info(revision_info)
+  for package_info in parse_revision_info(revision_info):
+    package, package_type = package_info
 
-  if package_type == "trunk":
-    for package in packages:
-      print "Updating {}".format(package)
+    print "Updating {}".format(package)
+    if package_type == "trunk":
       if in_manifest(package):
         with pushd(package):
           prev_branch = current_branch()
@@ -149,19 +146,17 @@ def main():
           checkout(prev_branch)
       else:
         print "{} not in manifest".format(package)
-  elif package_type: # if it is defined it is a branch of some kind
-    for package in packages:
-      print "Updating {}".format(package)
-      svn_branch = package.strip("branches/")
+    else:
+      svn_branch = package_type.strip("branches/")
       git_branch = reformat_branch_name(svn_branch)
-      version = git_branch.strip("revision-")
+      version = git_branch.strip("release-")
       if in_manifest(package, version = version):
         with pushd(package):
           if git_branch:
             prev_branch = current_branch()
 
             if not branch_exists(git_branch):
-                track_branch(svn_branch, git_branch)
+                track_branch(package, svn_branch, git_branch)
 
             checkout(git_branch)
             update()
@@ -170,8 +165,8 @@ def main():
       else:
         print "{} not in version {} manifest".format(package, version)
 
-  else:
-    raise Exception("Unknown package type: {}, packages: {}".format(package_type, packages))
+  #else:
+    #raise Exception("Unknown package type: {}, packages: {}".format(package_type, packages))
 
 if __name__ == "__main__":
   main()
