@@ -2,7 +2,7 @@
 ###############################################################################
 # By Jim Hester
 # Created: 2015 Mar 31 10:17:20 AM
-# Last Modified: 2015 Mar 31 04:27:57 PM
+# Last Modified: 2015 Apr 01 08:36:36 AM
 # Title:update_git.py
 # Purpose:Update git mirror from svn revision
 ###############################################################################
@@ -12,8 +12,41 @@ import os
 import subprocess
 import re
 from contextlib import contextmanager
-import sys
-sys.tracebacklimit=0
+#import sys
+import requests
+import json
+
+#sys.tracebacklimit=0
+
+def has_github_remote():
+  output = subprocess.check_output(['git', 'remote'])
+  return output != ''
+
+def create_github_repo(project):
+
+  print "Creating new Github Repository for {}".format(project)
+
+  url = args.github_api + '/orgs/bioconductor-mirror/repos'
+  headers = { 'Authorization': 'token {}'.format(args.token) }
+  values = {
+    'name': project,
+    'homepage': 'http://bioconductor.org/packages/devel/bioc/html/{}.html'.format(project),
+    'has_issues': 'false',
+    'has_wiki': 'false',
+    'has_downloads': 'false'
+  }
+
+  r = requests.post(url, headers = headers, data = json.dumps(values))
+  print r.json()
+
+  subprocess.check_call(['git', 'remote', 'add',
+                         'origin',
+                         'git@github.com:bioconductor-mirror/{}.git'.format(project)])
+
+def clone(project):
+  subprocess.check_call(['git', 'svn', 'clone',
+                         '/'.join([args.svn, args.trunk, args.prefix, project]),
+                         project])
 
 @contextmanager
 def pushd(newDir):
@@ -54,7 +87,7 @@ def push(branch = 'master', directory = '.'):
 
 def parse_manifest(version):
   output = subprocess.check_output(['svn', 'cat',
-                                    '/'.join([args.svn, 'trunk', args.prefix,
+                                    '/'.join([args.svn, args.trunk, args.prefix,
                                                  'bioc_' +
                                                  version +
                                                  '.manifest'])])
@@ -119,6 +152,8 @@ def main():
                       default = 'git@github.com:bioconductor-mirror')
   parser.add_argument('--devel-version', help = 'specify the devel version number',
                       default = '3.1')
+  parser.add_argument('--github-api', help = 'specify the url to the Github API',
+                      default = 'https://api.github.com')
 
   global args
   args = parser.parse_args()
@@ -136,9 +171,17 @@ def main():
     package, package_type = package_info
 
     print "Updating {}".format(package)
-    if package_type == "trunk":
+    if package_type == args.trunk:
       if in_manifest(package):
+        if not os.path.exists(package):
+          print "cloning {}".format(package)
+          clone(package)
+
         with pushd(package):
+          if not has_github_remote():
+            print "creating github remote for {}".format(package)
+            create_github_repo(package)
+
           prev_branch = current_branch()
           checkout("master")
           update()
