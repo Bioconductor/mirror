@@ -2,7 +2,7 @@
 ###############################################################################
 # By Jim Hester
 # Created: 2015 Mar 31 10:17:20 AM
-# Last Modified: 2015 Apr 01 08:36:36 AM
+# Last Modified: 2015 Apr 01 08:38:07 AM
 # Title:update_git.py
 # Purpose:Update git mirror from svn revision
 ###############################################################################
@@ -12,11 +12,8 @@ import os
 import subprocess
 import re
 from contextlib import contextmanager
-#import sys
 import requests
 import json
-
-#sys.tracebacklimit=0
 
 def has_github_remote():
   output = subprocess.check_output(['git', 'remote'])
