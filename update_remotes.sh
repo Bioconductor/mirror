@@ -23,4 +23,6 @@ for release_branch in $release_branches; do
   git update-ref refs/remotes/git-svn-$release_branch refs/heads/$release_branch
 done
 
-echo "Commit to git as normal, to push your commits to svn, use git svn dcommit"
+git remote add bioc https://github.com/Bioconductor-mirror/${package}.git
+
+echo "Commit to git as normal, use git pull bioc to sync, to push your commits to svn, use git svn dcommit"
