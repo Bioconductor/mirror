@@ -7,7 +7,7 @@
 set -eou pipefail
 IFS=$'\n\t'
 
-package=$(git remote -v | perl -ne 'if (m!/([^/]+).git!) { print $1; exit}')
+package=$(git remote -v | perl -ne 'if (m!/([^/]+?)(?:.git)?\s!) { print $1; exit}')
 git checkout master
 git svn init "https://hedgehog.fhcrc.org/bioconductor/trunk/madman/Rpacks/$package"
 git update-ref refs/remotes/git-svn refs/remotes/origin/master
