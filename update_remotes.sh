@@ -65,8 +65,7 @@ else
 Commit to git as normal, when you want to push your commits to svn
   1. `git checkout bioc/master` to switch to the Bioconductor mirror.
   2. `git pull --rebase` to update to the latest mirror state.
-  3. `git merge master` to merge your changes into the current svn state.
-  4. `git svn rebase` to sync with the latest svn state.
-  5. `git svn dcommit` to commit your changes
+  3. `git merge master` to merge your local changes.
+  4. `git svn dcommit` to commit your changes
 END
 fi
