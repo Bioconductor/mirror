@@ -36,17 +36,18 @@ if is_mirror_clone; then
     git update-ref refs/remotes/git-svn refs/remotes/origin/master
     git svn rebase
     git remote add bioc https://github.com/Bioconductor-mirror/${package}.git
+    git fetch bioc
 
     release_branches=$(git branch -r | perl -ne 'if (m!origin/(release-.*)!) { print $1, "\n" }')
-    add_release_tracking origin heads $release_branches
-
-    for release_branch in $@; do
-      git branch --track $release_branch $branch/$release_branch
+    for release_branch in ${release_branches[@]}; do
+      git branch --track $release_branch bioc/$release_branch
     done
+
+    add_release_tracking origin heads $release_branches
 
     cat <<\END
 Commit to git as normal, when you want to push your commits to svn
-  1. `git svn rebase` to sync with the latest resuts
+  1. `git rebase rebase` to sync with the latest resuts
   2. `git svn dcommit` to commit your changes
 END
 
