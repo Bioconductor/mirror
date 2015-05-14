@@ -47,7 +47,7 @@ if is_mirror_clone; then
 
     cat <<\END
 Commit to git as normal, when you want to push your commits to svn
-  1. `git rebase rebase` to sync with the latest resuts
+  1. `git rebase` to sync with the latest resuts
   2. `git svn dcommit` to commit your changes
 END
 
@@ -64,8 +64,8 @@ else
     add_release_tracking bioc remotes/bioc $release_branches
     cat <<\END
 Commit to git as normal, when you want to push your commits to svn
-  1. `git checkout bioc/master` to switch to the Bioconductor mirror.
-  2. `git pull --rebase` to update to the latest mirror state.
+  1. `git fetch bioc` to get the lastest mirror state.
+  2. `git checkout bioc/master` to switch to the Bioconductor mirror.
   3. `git merge master` to merge your local changes.
   4. `git svn dcommit` to commit your changes
 END
