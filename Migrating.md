@@ -48,12 +48,12 @@ If you simply want to use git locally on your machine and do not need to have a
 publicly accessible git repository on Github (or elsewhere) you can simply
 clone your package from the mirror directly.
 
-    1. git clone https://github.com/Bioconductor-mirror/REPO to clone the repository to your machine.
-    2. `bash update_remotes.sh` to setup the git remotes.
-    3. Commit to git as you normally would.
-    4. Each time you want to push git commits to svn run the following commands.
-        1. `git rebase`
-        2. `git svn dcommit`
+  1. git clone https://github.com/Bioconductor-mirror/REPO to clone the repository to your machine.
+  2. `bash update_remotes.sh` to setup the git remotes.
+  3. Commit to git as you normally would.
+  4. Each time you want to push git commits to svn run the following commands.
+    1. `git pull --rebase` to get the latest mirror state.
+    2. `git svn dcommit` to commit your changes
 
 ### Use Git Locally And Publicly ###
 
@@ -66,14 +66,13 @@ navigate to your repository mirror at
 upper right.  This will create a copy of the repository on your personal account.
 Then perform the following steps in your terminal.
 
-    1. `git clone https://github.com/USER/REPO` to clone the repository to your machine.
-    2. `bash update_remotes.sh` to setup the git remotes.
-    3. Commit to git and push to Github as you normally would.
-    4. Each time you want to push git commits to svn
-       1. `git fetch bioc` to get the lastest mirror state.
-       2. `git checkout bioc/master` to switch to the Bioconductor mirror.
-       3. `git merge master` to merge your local changes.
-       4. `git svn dcommit` to commit your changes
+  1. `git clone https://github.com/USER/REPO` to clone the repository to your machine.
+  2. `bash update_remotes.sh` to setup the git remotes.
+  3. Commit to git and push to Github as you normally would.
+  4. Each time you want to push git commits to svn
+    1. `git checkout devel` to switch to the devel branch. (use release-X.X for release branches)
+    2. `git pull --rebase` to get the latest mirror state.
+    3. `git svn dcommit` to commit your changes
 
 ## FAQs ##
 

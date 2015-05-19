@@ -28,6 +28,18 @@ add_release_tracking () {
   done
 }
 
+add_branch () {
+  set +eu
+  local local_branch=$1
+  local remote_branch=${2-$local_branch}
+  if ! git branch --track $local_branch bioc/$remote_branch  2>/dev/null 1>&2; then
+    1>&2 cat <<END
+$local_branch already exists, create a custom branch to track bioc/$remote_branch with
+  \`git branch --track NEW_NAME bioc/$remote_branch\`
+END
+  fi
+}
+
 if is_mirror_clone; then
     # Bioc-mirror clone
     package=$(git remote -v | perl -ne 'if (m!/([^/]+?)(?:.git)?\s!) { print $1; exit}')
@@ -40,14 +52,14 @@ if is_mirror_clone; then
 
     release_branches=$(git branch -r | perl -ne 'if (m!origin/(release-.*)!) { print $1, "\n" }')
     for release_branch in ${release_branches[@]}; do
-      git branch --track $release_branch bioc/$release_branch
+      add_branch $release_branch
     done
 
     add_release_tracking origin heads $release_branches
 
     cat <<\END
 Commit to git as normal, when you want to push your commits to svn
-  1. `git rebase` to sync with the latest resuts
+  1. `git pull --rebase` to get the latest mirror state.
   2. `git svn dcommit` to commit your changes
 END
 
@@ -62,11 +74,15 @@ else
 
     release_branches=$(git branch -r | perl -ne 'if (m!bioc/(release-.*)!) { print $1, "\n" }')
     add_release_tracking bioc remotes/bioc $release_branches
+
+    for release_branch in ${release_branches[@]}; do
+      add_branch $release_branch
+    done
+    add_branch devel master
     cat <<\END
 Commit to git as normal, when you want to push your commits to svn
-  1. `git fetch bioc` to get the lastest mirror state.
-  2. `git checkout bioc/master` to switch to the Bioconductor mirror.
-  3. `git merge master` to merge your local changes.
-  4. `git svn dcommit` to commit your changes
+  1. `git checkout devel` to switch to the devel branch. (use release-X.X for release branches)
+  2. `git pull --rebase` to get the latest mirror state.
+  3. `git svn dcommit` to commit your changes
 END
 fi
