@@ -26,6 +26,14 @@ which is bundled with git.
 
 ### Mac OS X - Homebrew ###
 
+`git-svn` *should* already be installed. Run the command
+
+```
+git svn --help
+```
+
+If it shows a help page, then git-svn is already installed. Otherwise, try:
+
 ```bash
 brew update
 brew install git
