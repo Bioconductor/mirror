@@ -26,6 +26,14 @@ which is bundled with git.
 
 ### Mac OS X - Homebrew ###
 
+`git-svn` *should* already be installed. Run the command
+
+```
+git svn --help
+```
+
+If it shows a help page, then git-svn is already installed. Otherwise, try:
+
 ```bash
 brew update
 brew install git
@@ -80,7 +88,7 @@ Then perform the following steps in your terminal.
 
 Add `URL: https://github.com/USER/REPO` and `BugReports:
 https://github.com/USER/REPO/issues` to your `DESCRIPTION` file. You can also
-put the You can also mention your bridge on the bioc-devel
+put the You can also mention your repository on the bioc-devel
 [mailing list](http://bioconductor.org/help/mailing-list/).
 
 ### I don't know my Subversion username and/or password. What do I do? ###
