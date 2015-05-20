@@ -48,7 +48,7 @@ if is_mirror_clone; then
     git update-ref refs/remotes/git-svn refs/remotes/origin/master
     git svn rebase
     git remote add bioc https://github.com/Bioconductor-mirror/${package}.git
-    git fetch bioc
+    git fetch bioc 2>/dev/null 1>&2
 
     release_branches=$(git branch -r | perl -ne 'if (m!origin/(release-.*)!) { print $1, "\n" }')
     for release_branch in ${release_branches[@]}; do
@@ -67,7 +67,7 @@ else
     # existing repo clone
     package=$(git remote -v | perl -ne 'if (m!/([^/]+?)(?:.git)?\s!) { print $1; exit}')
     git remote add bioc "https://github.com/Bioconductor-mirror/${package}.git"
-    git fetch bioc
+    git fetch bioc 2>/dev/null 1>&2
     git config --add svn-remote.devel.url "$base_url/trunk/madman/Rpacks/$package"
     git config --add svn-remote.devel.fetch :refs/remotes/git-svn-devel
     git update-ref refs/remotes/git-svn-devel refs/remotes/bioc/master
@@ -83,6 +83,7 @@ else
 Commit to git as normal, when you want to push your commits to svn
   1. `git checkout devel` to switch to the devel branch. (use release-X.X for release branches)
   2. `git pull --rebase` to get the latest mirror state.
-  3. `git svn dcommit` to commit your changes
+  3. `git merge master` to merge your changes from the master branch.
+  4. `git svn dcommit` to commit your changes to svn.
 END
 fi
