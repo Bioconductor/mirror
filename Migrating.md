@@ -144,7 +144,7 @@ offending commit, have already been pushed to GitHub, updating the commit
 message on GitHub is not advised, as it would change the public history of the
 repository.  If you encounter this error you should fix the error message with
 `git commit --amend`, then `git push -f` to force push the commit and `git svn
-dcommit` to svn.  *Note doing this edits the public history, so if other users
+dcommit` to svn.  *Note doing this edits the public history, so other users'
 history may be out of sync!*
 
 ## Troubleshooting #
