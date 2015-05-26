@@ -7,6 +7,8 @@
 set -eou pipefail
 IFS=$'\n\t'
 
+package=$1
+
 base_url="https://hedgehog.fhcrc.org/bioconductor/"
 
 is_mirror_clone () {
@@ -42,7 +44,9 @@ END
 
 if is_mirror_clone; then
     # Bioc-mirror clone
-    package=$(git remote -v | perl -ne 'if (m!/([^/]+?)(?:.git)?\s!) { print $1; exit}')
+    if [ -z "$package" ];then
+      package=$(git remote -v | perl -ne 'if (m!/([^/]+?)(?:.git)?\s!) { print $1; exit}')
+    fi
     git checkout master
     git svn init "$base_url/trunk/madman/Rpacks/$package"
     git update-ref refs/remotes/git-svn refs/remotes/origin/master
@@ -65,7 +69,9 @@ END
 
 else
     # existing repo clone
-    package=$(git remote -v | perl -ne 'if (m!/([^/]+?)(?:.git)?\s!) { print $1; exit}')
+    if [ -z "$package" ];then
+      package=$(git remote -v | perl -ne 'if (m!/([^/]+?)(?:.git)?\s!) { print $1; exit}')
+    fi
     git remote add bioc "https://github.com/Bioconductor-mirror/${package}.git"
     git fetch bioc 2>/dev/null 1>&2
     git config --add svn-remote.devel.url "$base_url/trunk/madman/Rpacks/$package"
