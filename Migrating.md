@@ -62,7 +62,7 @@ clone your package from the mirror directly.
   4. Commit to git as you normally would.
   5. Each time you want to push git commits to svn run the following commands.
     1. `git pull --rebase` to get the latest mirror state.
-    2. `git svn dcommit` to commit your changes
+    2. `git svn dcommit --add-author-from` to commit your changes to svn.
 
 ### Use Git Locally And Publicly ###
 
@@ -83,7 +83,7 @@ Then perform the following steps in your terminal.
     1. `git checkout devel` to switch to the devel branch. (use release-X.X for release branches)
     2. `git pull --rebase` to get the latest mirror state.
     3. `git merge master` to merge your changes from the master branch.
-    4. `git svn dcommit` to commit your changes to svn.
+    4. `git svn dcommit --add-author-from` to commit your changes to svn.
 
 ## FAQs ##
 
