@@ -66,8 +66,8 @@ if is_mirror_clone; then
 
     cat <<\END
 Commit to git as normal, when you want to push your commits to svn
-  1. `git pull --rebase` to get the latest mirror state.
-  2. `git svn dcommit --add-author-from` to commit your changes to svn.
+  1. `git svn rebase` to get the latest SVN changes.
+  2. `git svn dcommit --add-author-from` to commit your changes to SVN.
 END
 
 else
@@ -87,8 +87,8 @@ else
     cat <<\END
 Commit to git as normal, when you want to push your commits to svn
   1. `git checkout devel` to switch to the devel branch. (use release-X.X for release branches)
-  2. `git pull --rebase` to get the latest mirror state.
+  2. `git svn rebase` to get the latest SVN changes.
   3. `git merge master` to merge your changes from the master branch.
-  4. `git svn dcommit --add-author-from` to commit your changes to svn.
+  4. `git svn rebase && git svn dcommit --add-author-from` to sync and commit your changes to svn.
 END
 fi
