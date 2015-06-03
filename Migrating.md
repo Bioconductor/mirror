@@ -2,7 +2,7 @@
 
 Bioconductor packages are stored using in the Bioconductor Subversion (SVN)
 repository.  However Bioconductor also maintains Read-only mirrors for each
-package located on [Github](https://github.com/Bioconductor-mirror).
+package located on [GitHub](https://github.com/Bioconductor-mirror).
 
 These instructions detail how to use these mirrors as well as
 [git-svn](http://git-scm.com/docs/git-svn) to interact with the Subversion
@@ -10,7 +10,7 @@ repositories from git.
 
 *The examples below use HTTPS authentication, however you are free to
 substitute using SSH if you prefer, in all cases USER should be replaced by
-your Github username, and REPO should be replaced by your package name*
+your GitHub username, and REPO should be replaced by your package name*
 
 ## Install Git-Svn Pre-Requisites ##
 
@@ -53,10 +53,10 @@ sudo apt-get install git-svn
 ### Use Git Locally But Use SVN Publicly ###
 
 If you simply want to use git locally on your machine and do not need to have a
-publicly accessible git repository on Github (or elsewhere) you can simply
+publicly accessible git repository on GitHub (or elsewhere) you can simply
 clone your package from the mirror directly.
 
-  1. git clone https://github.com/Bioconductor-mirror/REPO to clone the repository to your machine.
+  1. `git clone https://github.com/Bioconductor-mirror/REPO` to clone the repository to your machine.
   2. `cd REPO` to switch to the REPO directory.
   3. `bash update_remotes.sh` to setup the git remotes.
   4. Commit to git as you normally would.
@@ -69,16 +69,16 @@ clone your package from the mirror directly.
 If you are currently using the Git-Svn Bridge please disable it at
 <https://gitsvn.bioconductor.org/>.
 
-If you do not already have a public git repository the simplest thing to do is
-navigate to your repository mirror at
-`https://github.com/Bioconductor-mirror/REPO` and click the `Fork` button in the
-upper right.  This will create a copy of the repository on your personal account.
-Then perform the following steps in your terminal.
+If you do not already have a public git repository for package REPO the
+simplest thing to do is navigate to
+`https://github.com/Bioconductor-mirror/REPO` and click the `Fork` button in
+the upper right.  This will create a copy of the repository on your personal
+account. Then perform the following steps in your terminal.
 
   1. `git clone https://github.com/USER/REPO` to clone the repository to your machine.
   2. `cd REPO` to switch to the REPO directory.
   3. `bash update_remotes.sh` to setup the git remotes.
-  4. Commit to git and push to Github as you normally would.
+  4. Commit to git and push to GitHub as you normally would.
   5. Each time you want to push git commits to svn
     1. `git checkout devel` to switch to the devel branch. (use release-X.X for release branches)
     2. `git pull --rebase` to get the latest mirror state.
@@ -87,12 +87,12 @@ Then perform the following steps in your terminal.
 
 ## FAQs ##
 
-### How do let users know I am using Github for development and contributions?
+### How do let users know I am using GitHub for development and contributions?
 
 Add `URL: https://github.com/USER/REPO` and `BugReports:
 https://github.com/USER/REPO/issues` to your `DESCRIPTION` file. You can also
-put the You can also mention your repository on the bioc-devel
-[mailing list](http://bioconductor.org/help/mailing-list/).
+mention your repository on the bioc-devel [mailing
+list](http://bioconductor.org/help/mailing-list/).
 
 ### I don't know my Subversion username and/or password. What do I do? ###
 
@@ -132,7 +132,7 @@ One of the following steps should work:
 
 If you are cloning the mirrors directly you can switch to the `release-X.X`
 branch of the release you would like to commit to, and then proceed as normal.
-If you are hosting on Github as well, rather than checking out `bioc/master`
+If you are hosting on GitHub as well, rather than checking out `bioc/master`
 checkout `bioc/release-X.X`, then perform the rest of the steps as normal.
 
 ## Troubleshooting #
@@ -152,7 +152,7 @@ Useful references to sort such cases out are
 
 ## Resources #
 
-* [Github's Git help](https://help.github.com/)
-* [Good Resources For Learning Git and Github](https://help.github.com/articles/good-resources-for-learning-git-and-github/)
+* [GitHub's Git help](https://help.github.com/)
+* [Good Resources For Learning Git and GitHub](https://help.github.com/articles/good-resources-for-learning-git-and-github/)
 * [Most common git screwups/questions and solutions](http://41j.com/blog/2015/02/common-git-screwupsquestions-solutions/)
 * [Flight rules for git](https://github.com/k88hudson/git-flight-rules)
