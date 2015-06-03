@@ -135,27 +135,16 @@ branch of the release you would like to commit to, and then proceed as normal.
 If you are hosting on Github as well, rather than checking out `bioc/master`
 checkout `bioc/release-X.X`, then perform the rest of the steps as normal.
 
-## Known Issues #
-
-`svn` requires a commit message of at least 10 characters. This is however not
-a requirement in `git`. If there is such a short `git` commit message, it might
-lead to an error in `git svn dcommit`. If the commits, and in particular the
-offending commit, have already been pushed to GitHub, updating the commit
-message on GitHub is not advised, as it would change the public history of the
-repository.  If you encounter this error you should fix the error message with
-`git commit --amend`, then `git push -f` to force push the commit and `git svn
-dcommit` to svn.  *Note doing this edits the public history, so other users'
-history may be out of sync!*
-
 ## Troubleshooting #
 
 ### Unable to determine upstream SVN information
 
-The dreadful message indicating that `git` and `svn`got out of sync is `Unable
+The dreadful message indicating that `git` and `svn` got out of sync is `Unable
 to determine upstream SVN information from working tree history`. This can
-happen, for example if one forgets to `git fetch bioc` but changes were
-committed to svn independently. Inspect you git log with `git log --graph
---decorate --pretty=oneline --abbrev-commit --all` to help identify such cases.
+happen, for example if one forgets to `git pull --rbase` before trying to 
+`git svn dcomit` and changes were committed to svn independently. Inspect your git 
+log with `git log --graph --decorate --pretty=oneline --abbrev-commit --all` to help 
+identify such cases.
 
 Useful references to sort such cases out are 
 - http://stackoverflow.com/questions/9805980/unable-to-determine-upstream-svn-information-from-working-tree-history
