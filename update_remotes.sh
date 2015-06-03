@@ -7,7 +7,14 @@
 set -eou pipefail
 IFS=$'\n\t'
 
+set +u
 package=$1
+
+# otherwise use the default repo name
+if [ -z "$package" ];then
+  package=$(git remote -v | perl -ne 'if (m!/([^/]+?)(?:.git)?\s!) { print $1; exit}')
+fi
+set -u
 
 base_url="https://hedgehog.fhcrc.org/bioconductor/"
 
@@ -43,10 +50,6 @@ END
 }
 
 if is_mirror_clone; then
-    # Bioc-mirror clone
-    if [ -z "$package" ];then
-      package=$(git remote -v | perl -ne 'if (m!/([^/]+?)(?:.git)?\s!) { print $1; exit}')
-    fi
     git checkout master
     git svn init "$base_url/trunk/madman/Rpacks/$package"
     git update-ref refs/remotes/git-svn refs/remotes/origin/master
@@ -68,10 +71,6 @@ Commit to git as normal, when you want to push your commits to svn
 END
 
 else
-    # existing repo clone
-    if [ -z "$package" ];then
-      package=$(git remote -v | perl -ne 'if (m!/([^/]+?)(?:.git)?\s!) { print $1; exit}')
-    fi
     git remote add bioc "https://github.com/Bioconductor-mirror/${package}.git"
     git fetch bioc 2>/dev/null 1>&2
     git config --add svn-remote.devel.url "$base_url/trunk/madman/Rpacks/$package"
