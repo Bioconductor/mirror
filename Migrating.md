@@ -47,6 +47,9 @@ sudo apt-get install git-svn
 
 ## Download the update_remotes.sh script ##
 
+This script will automatically create local branches to track the development
+and release branches from svn and the associated git mirrors.
+
 `curl -O https://raw.githubusercontent.com/Bioconductor/mirror/master/update_remotes.sh`
 
 ## Setup ##
