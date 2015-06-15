@@ -2,7 +2,7 @@
 ###############################################################################
 # By Jim Hester
 # Created: 2015 Mar 31 10:17:20 AM
-# Last Modified: 2015 Jun 15 05:45:04 PM
+# Last Modified: 2015 Jun 15 05:46:22 PM
 # Title:update_git.py
 # Purpose:Update git mirror from svn revision
 ###############################################################################
@@ -67,7 +67,6 @@ def parse_revision_info(lines):
       if not package_type:
         print >> sys.stderr, "line: {}".format(line)
 
-  import pprint; pprint.pprint(packages)
   return sorted(list(packages), key=itemgetter(0, 1))
 
 def current_branch(directory='.'):
