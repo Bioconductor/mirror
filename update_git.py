@@ -2,7 +2,7 @@
 ###############################################################################
 # By Jim Hester
 # Created: 2015 Mar 31 10:17:20 AM
-# Last Modified: 2015 Apr 01 08:38:07 AM
+# Last Modified: 2015 Jun 15 04:11:02 PM
 # Title:update_git.py
 # Purpose:Update git mirror from svn revision
 ###############################################################################
@@ -14,6 +14,8 @@ import re
 from contextlib import contextmanager
 import requests
 import json
+from operator import itemgetter
+import sys
 
 def has_github_remote():
   output = subprocess.check_output(['git', 'remote'])
@@ -54,7 +56,7 @@ def pushd(newDir):
 
 def parse_revision_info(lines):
   packages = set()
-  path_re = re.compile('^ +[AMR] /(.*)/{}/([^/]*)'.format(args.prefix))
+  path_re = re.compile('^ +[AMR] /([^\s]+)/{}/([^/\s]+)'.format(args.prefix))
   for line in lines.split("\n"):
     path_search = path_re.search(line)
     if path_search:
@@ -62,7 +64,10 @@ def parse_revision_info(lines):
       package = path_search.group(2)
       packages.add((package, package_type))
 
-  return list(packages)
+      if not package_type:
+        print >> sys.stderr, "line: {}".format(line)
+
+  return sorted(list(packages), key=itemgetter(0, 1))
 
 def current_branch(directory='.'):
   output = subprocess.check_output(["git", "status", "--porcelain", "-b"], cwd=directory)
@@ -171,7 +176,7 @@ def main():
     if package_type == args.trunk:
       if in_manifest(package):
         if not os.path.exists(package):
-          print "cloning {}".format(package)
+          print "Cloning {}".format(package)
           clone(package)
 
         with pushd(package):
@@ -189,21 +194,21 @@ def main():
     else:
       svn_branch = package_type.strip("branches/")
       git_branch = reformat_branch_name(svn_branch)
-      version = git_branch.strip("release-")
-      if in_manifest(package, version = version):
-        with pushd(package):
-          if git_branch:
+      if git_branch:
+        version = git_branch.strip("release-")
+        if in_manifest(package, version = version):
+          with pushd(package):
             prev_branch = current_branch()
 
             if not branch_exists(git_branch):
-                track_branch(package, svn_branch, git_branch)
+              track_branch(package, svn_branch, git_branch)
 
             checkout(git_branch)
             update()
             push(git_branch)
             checkout(prev_branch)
-      else:
-        print "{} not in version {} manifest".format(package, version)
+        else:
+          print "{} type: {} not in version {} manifest".format(package, package_type, version)
 
   #else:
     #raise Exception("Unknown package type: {}, packages: {}".format(package_type, packages))
