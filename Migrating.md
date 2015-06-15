@@ -1,3 +1,5 @@
+**NOTE:** The canonical version of this page is moving to <http://bioconductor.org/developers/how-to/git-mirrors/>
+
 # Using Git with Bioconductor SVN repositories #
 
 Bioconductor packages are stored using in the Bioconductor Subversion (SVN)
