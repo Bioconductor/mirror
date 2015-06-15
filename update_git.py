@@ -2,7 +2,7 @@
 ###############################################################################
 # By Jim Hester
 # Created: 2015 Mar 31 10:17:20 AM
-# Last Modified: 2015 Jun 15 04:11:02 PM
+# Last Modified: 2015 Jun 15 04:13:12 PM
 # Title:update_git.py
 # Purpose:Update git mirror from svn revision
 ###############################################################################
@@ -95,7 +95,7 @@ def parse_manifest(version):
                                                  '.manifest'])])
   packages = set()
   for line in output.split("\n"):
-    line_search = re.search("^Package: (.*)", line)
+    line_search = re.search("^Package:\s*(\S+)", line)
     if line_search:
       packages.add(line_search.group(1))
   return packages
