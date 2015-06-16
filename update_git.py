@@ -2,7 +2,7 @@
 ###############################################################################
 # By Jim Hester
 # Created: 2015 Mar 31 10:17:20 AM
-# Last Modified: 2015 Jun 15 05:46:22 PM
+# Last Modified: 2015 Jun 16 08:31:36 AM
 # Title:update_git.py
 # Purpose:Update git mirror from svn revision
 ###############################################################################
@@ -16,6 +16,7 @@ import requests
 import json
 from operator import itemgetter
 import sys
+import fileinput
 
 def has_github_remote():
   output = subprocess.check_output(['git', 'remote'])
@@ -136,6 +137,24 @@ def branch_exists(branch):
 
   return output != ''
 
+
+def read_packages_info(infile):
+  res = list()
+  for line in fileinput.input(infile):
+    package, package_type = line.rstrip("\n").partition("\t")[::2]
+
+    # make trunk the default type
+    if not package_type:
+      package_type = "trunk"
+
+    res.append((package, package_type))
+
+  return res
+
+def print_packages_info(packages_info):
+  for package, package_type in packages_info:
+    print "\t".join([package, package_type])
+
 def main():
   parser = argparse.ArgumentParser(description='Update git mirror from svn revision')
   parser.add_argument('revision', help = 'svn revision to mirror')
@@ -156,6 +175,9 @@ def main():
                       default = '3.1')
   parser.add_argument('--github-api', help = 'specify the url to the Github API',
                       default = 'https://api.github.com')
+  group = parser.add_mutually_exclusive_group()
+  group.add_argument('--dump', action = 'store_true')
+  group.add_argument('--infile')
 
   global args
   args = parser.parse_args()
@@ -166,10 +188,18 @@ def main():
     else:
       raise Exception("Must specify a Github token")
 
-  revision_info = subprocess.check_output(["svn", "log", "--verbose", "--stop-on-copy", "-r",
-                                   args.revision, args.svn])
+  if args.infile:
+    packages_info = read_packages_info(args.infile)
+  else:
+    revision_info = subprocess.check_output(["svn", "log", "--verbose", "--stop-on-copy", "-r",
+                                             args.revision, args.svn])
+    packages_info = parse_revision_info(revision_info)
 
-  for package_info in parse_revision_info(revision_info):
+  if args.dump:
+    print_packages_info(packages_info)
+    sys.exit(0)
+
+  for package_info in packages_info:
     package, package_type = package_info
 
     print "Updating {}".format(package)
