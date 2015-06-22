@@ -13,4 +13,5 @@ if [[ -z $branch_point ]]; then
     git filter-branch -- ${base}..$branch
     git push --all --force
 else
-echo "No branch point found for $branch!"
+    echo "No branch point found for $branch!"
+fi
