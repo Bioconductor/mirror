@@ -14,7 +14,7 @@ branch_sha1 () {
   local from_revision=$(svn log --stop-on-copy --verbose "$svn_url" | perl -ne 'if (/from [^:]+:([0-9]+)/) { print $1,"\n" }')
 
   for commit in $(git svn log --oneline --show-commit $from); do
-    local commit_info=(${commit// | /$'\t'})
+    local commit_info=($(echo $commit | perl -ne 'print join("\t", split /[ |]+/)'))
     local revision=${commit_info[0]}
     local sha1=$(git log -n 1 --format='%H' ${commit_info[1]})
     if [[ ${revision:1} -lt $from_revision ]]; then
