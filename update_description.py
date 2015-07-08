@@ -2,7 +2,7 @@
 ###############################################################################
 # By Jim Hester
 # Created: 2015 Mar 31 10:17:20 AM
-# Last Modified: 2015 Jul 08 02:23:10 PM
+# Last Modified: 2015 Jul 08 02:24:19 PM
 # Title:update_description.py
 # Purpose:Parse the DESCRPITION file and create a GitHub Description
 ###############################################################################
@@ -57,7 +57,7 @@ def add_description(package):
 
   print "Adding description for {}".format(package["name"])
 
-  description_text = u"""This is a read-only mirror of the Bioconductor SVN repository.{contributions} Bug\u00A0Reports:\u00A0https://support.bioconductor.org/p/new/post/?{encoded_package}{issues}. Package\u00A0Homepage:\u00A0http://bioconductor.org/packages/devel/bioc/html/{package}.html""".format(
+  description_text = u"""This is a read-only mirror of the Bioconductor SVN repository. Package\u00A0Homepage:\u00A0http://bioconductor.org/packages/devel/bioc/html/{package}.html{contributions} Bug\u00A0Reports:\u00A0https://support.bioconductor.org/p/new/post/?{encoded_package}{issues}.""".format(
     contributions = u" Contributions:\u00A0{URL}.".format(URL = package["URL"]) if "URL" in package else "",
     encoded_package = urllib.urlencode({'tag_val' : package["name"]}),
     package = package["name"],
