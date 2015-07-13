@@ -89,9 +89,9 @@ Commit to git as normal, when you want to push your commits to svn
   1. `git checkout devel` to switch to the devel branch. (use release-X.X for
         release branches)
   2. `git svn rebase` to get the latest SVN changes.
-  3. `git merge master --no-edit` to merge your changes from the master branch
+  3. `git merge master --log` to merge your changes from the master branch
         or skip this step and work directly on the current branch.
-  4. `git svn rebase && git svn dcommit --add-author-from` to sync and commit
+  4. `git svn dcommit --add-author-from` to sync and commit
         your changes to svn.
 END
 fi
