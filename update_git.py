@@ -2,7 +2,7 @@
 ###############################################################################
 # By Jim Hester
 # Created: 2015 Mar 31 10:17:20 AM
-# Last Modified: 2015 Jun 16 08:31:36 AM
+# Last Modified: 2015 Oct 19 02:39:44 PM
 # Title:update_git.py
 # Purpose:Update git mirror from svn revision
 ###############################################################################
@@ -43,10 +43,15 @@ def create_github_repo(project):
                          'origin',
                          'git@github.com:bioconductor-mirror/{}.git'.format(project)])
 
-def clone(project):
-  subprocess.check_call(['git', 'svn', 'clone',
-                         '/'.join([args.svn, args.trunk, args.prefix, project]),
-                         project])
+def clone(project, revision=None):
+  cmd = ['git', 'svn', 'clone',
+         '/'.join([args.svn, args.trunk, args.prefix, project]),
+         project]
+  if revision:
+    cmd = cmd[:3] + ['-r', revision] + cmd[3:]
+
+  subprocess.check_call(cmd)
+
 
 @contextmanager
 def pushd(newDir):
@@ -121,13 +126,16 @@ def reformat_branch_name(name):
   else:
     return None
 
-def track_branch(package, svn_branch, git_branch):
+def track_branch(package, svn_branch, git_branch, revision=None):
   subprocess.check_call(['git', 'config', '--add', 'svn-remote.{}.url'.format(git_branch),
                          '/'.join([args.svn, 'branches', svn_branch, args.prefix, package])])
   subprocess.check_call(['git', 'config', '--add', 'svn-remote.{}.fetch'.format(git_branch),
                          ':refs/remotes/git-svn-{}'.format(git_branch)])
 
-  subprocess.check_call(['git', 'svn', 'fetch', git_branch])
+  cmd = ['git', 'svn', 'fetch', git_branch]
+  if revision:
+    cmd = cmd[:3] + ['-r', revision] + cmd[3:]
+  subprocess.check_call(cmd)
 
   subprocess.check_call(['git', 'branch', git_branch,
                                           'git-svn-{}'.format(git_branch)])
@@ -175,6 +183,7 @@ def main():
                       default = '3.1')
   parser.add_argument('--github-api', help = 'specify the url to the Github API',
                       default = 'https://api.github.com')
+  parser.add_argument('--search-revision', help = 'the revision to search for history starting from')
   group = parser.add_mutually_exclusive_group()
   group.add_argument('--dump', action = 'store_true')
   group.add_argument('--infile')
@@ -203,11 +212,12 @@ def main():
     package, package_type = package_info
 
     print "Updating {}".format(package)
-    if package_type == args.trunk:
-      if in_manifest(package):
-        if not os.path.exists(package):
-          print "Cloning {}".format(package)
-          clone(package)
+    try:
+      if package_type == args.trunk:
+        if in_manifest(package):
+          if not os.path.exists(package):
+            print "Cloning {}".format(package)
+            clone(package, args.search_revision)
 
         with pushd(package):
           if not has_github_remote():
@@ -220,29 +230,29 @@ def main():
           push()
           if prev_branch:
             checkout(prev_branch)
+          else:
+            print "{} not in manifest".format(package)
       else:
-        print "{} not in manifest".format(package)
-    else:
-      svn_branch = package_type.strip("branches/")
-      git_branch = reformat_branch_name(svn_branch)
-      if git_branch:
-        version = git_branch.strip("release-")
-        if in_manifest(package, version = version):
-          with pushd(package):
-            prev_branch = current_branch()
+        svn_branch = package_type.strip("branches/")
+        git_branch = reformat_branch_name(svn_branch)
+        if git_branch:
+          version = git_branch.strip("release-")
+          if in_manifest(package, version = version):
+            with pushd(package):
+              prev_branch = current_branch()
 
             if not branch_exists(git_branch):
-              track_branch(package, svn_branch, git_branch)
+              track_branch(package, svn_branch, git_branch, args.search_revision)
 
             checkout(git_branch)
             update()
             push(git_branch)
             checkout(prev_branch)
-        else:
-          print "{} type: {} not in version {} manifest".format(package, package_type, version)
+          else:
+            print "{} type: {} not in version {} manifest".format(package, package_type, version)
+    except subprocess.CalledProcessError, e:
+      print e
 
-  #else:
-    #raise Exception("Unknown package type: {}, packages: {}".format(package_type, packages))
 
 if __name__ == "__main__":
   main()
