@@ -2,7 +2,7 @@
 ###############################################################################
 # By Jim Hester
 # Created: 2015 Mar 31 10:17:20 AM
-# Last Modified: 2015 Oct 23 10:07:17 AM
+# Last Modified: 2015 Oct 23 10:28:40 AM
 # Title:update_git.py
 # Purpose:Update git mirror from svn revision
 ###############################################################################
@@ -165,7 +165,8 @@ def print_packages_info(packages_info):
 
 def main():
   parser = argparse.ArgumentParser(description='Update git mirror from svn revision')
-  parser.add_argument('revision', help = 'svn revision to mirror')
+  parser.add_argument('packages', nargs = '*', help = 'packages to update')
+  parser.add_argument('--revision', help = 'svn revision to mirror')
   parser.add_argument('--token', help = 'Github API token')
   parser.add_argument('--svn', help = 'svn url',
                       default = 'https://hedgehog.fhcrc.org/bioconductor')
@@ -183,10 +184,11 @@ def main():
                       default = '3.3')
   parser.add_argument('--github-api', help = 'specify the url to the Github API',
                       default = 'https://api.github.com')
+  parser.add_argument('--type', default = 'trunk', help = 'specify the package type (trunk or branches/RELEASE_X_X). This is used for all packages if it is given')
   parser.add_argument('--search-revision', help = 'the revision to search for history starting from')
   group = parser.add_mutually_exclusive_group()
-  group.add_argument('--dump', action = 'store_true')
-  group.add_argument('--infile')
+  group.add_argument('--dump', help = 'dump list of packages that would be changed and exit', action = 'store_true')
+  group.add_argument('--infile', help = 'read packages from a previous dump and update them')
 
   global args
   args = parser.parse_args()
@@ -199,10 +201,12 @@ def main():
 
   if args.infile:
     packages_info = read_packages_info(args.infile)
-  else:
+  elif args.revision:
     revision_info = subprocess.check_output(["svn", "log", "--verbose", "--stop-on-copy", "-r",
                                              args.revision, args.svn])
     packages_info = parse_revision_info(revision_info)
+  elif args.packages:
+    packages_info = [(x, args.type) for x in args.packages]
 
   if args.dump:
     print_packages_info(packages_info)
