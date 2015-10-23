@@ -2,7 +2,7 @@
 ###############################################################################
 # By Jim Hester
 # Created: 2015 Mar 31 10:17:20 AM
-# Last Modified: 2015 Oct 19 02:39:44 PM
+# Last Modified: 2015 Oct 23 10:07:17 AM
 # Title:update_git.py
 # Purpose:Update git mirror from svn revision
 ###############################################################################
@@ -180,7 +180,7 @@ def main():
   parser.add_argument('--remote', help = 'prefix to append before packages',
                       default = 'git@github.com:bioconductor-mirror')
   parser.add_argument('--devel-version', help = 'specify the devel version number',
-                      default = '3.1')
+                      default = '3.3')
   parser.add_argument('--github-api', help = 'specify the url to the Github API',
                       default = 'https://api.github.com')
   parser.add_argument('--search-revision', help = 'the revision to search for history starting from')
