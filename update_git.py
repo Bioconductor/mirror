@@ -2,7 +2,7 @@
 ###############################################################################
 # By Jim Hester
 # Created: 2015 Mar 31 10:17:20 AM
-# Last Modified: 2015 Oct 23 10:28:40 AM
+# Last Modified: 2015 Oct 23 11:04:47 AM
 # Title:update_git.py
 # Purpose:Update git mirror from svn revision
 ###############################################################################
@@ -111,9 +111,6 @@ def in_manifest(package, version = None):
     global manifests
     manifests = {}
 
-  if not version:
-    version = args.devel_version
-
   if version not in manifests:
     manifests[version] = parse_manifest(version)
 
@@ -184,7 +181,7 @@ def main():
                       default = '3.3')
   parser.add_argument('--github-api', help = 'specify the url to the Github API',
                       default = 'https://api.github.com')
-  parser.add_argument('--type', default = 'trunk', help = 'specify the package type (trunk or branches/RELEASE_X_X). This is used for all packages if it is given')
+  parser.add_argument('--type', nargs = '+', default = ['trunk'], help = 'specify the package type (trunk or branches/RELEASE_X_X). This is used for all packages if it is given')
   parser.add_argument('--search-revision', help = 'the revision to search for history starting from')
   group = parser.add_mutually_exclusive_group()
   group.add_argument('--dump', help = 'dump list of packages that would be changed and exit', action = 'store_true')
@@ -206,7 +203,7 @@ def main():
                                              args.revision, args.svn])
     packages_info = parse_revision_info(revision_info)
   elif args.packages:
-    packages_info = [(x, args.type) for x in args.packages]
+    packages_info = [(x, y) for x in args.packages for y in args.type]
 
   if args.dump:
     print_packages_info(packages_info)
@@ -218,7 +215,7 @@ def main():
     print "Updating {}".format(package)
     try:
       if package_type == args.trunk:
-        if in_manifest(package):
+        if in_manifest(package, args.devel_version):
           if not os.path.exists(package):
             print "Cloning {}".format(package)
             clone(package, args.search_revision)
