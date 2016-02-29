@@ -220,6 +220,8 @@ def main():
             print "Cloning {}".format(package)
             clone(package, args.search_revision)
 
+        if not os.path.isdir(package):
+            continue
         with pushd(package):
           if not has_github_remote():
             print "creating github remote for {}".format(package)
