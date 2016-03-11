@@ -197,12 +197,15 @@ def main():
       raise Exception("Must specify a Github token")
 
   if args.infile:
+    print "infile is: {}".format(args.infile)
     packages_info = read_packages_info(args.infile)
   elif args.revision:
+    print "SVN Revision Number is: {}".format(args.revision)
     revision_info = subprocess.check_output(["svn", "log", "--verbose", "--stop-on-copy", "-r",
                                              args.revision, args.svn])
     packages_info = parse_revision_info(revision_info)
   elif args.packages:
+    print "Packages are: {}".format(args.packages)
     packages_info = [(x, y) for x in args.packages for y in args.type]
 
   if args.dump:
