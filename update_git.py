@@ -2,7 +2,7 @@
 ###############################################################################
 # By Jim Hester
 # Created: 2015 Mar 31 10:17:20 AM
-# Last Modified: 2015 Oct 23 11:04:47 AM
+# Last Modified: 2016 Apr 02 07:32:06 AM
 # Title:update_git.py
 # Purpose:Update git mirror from svn revision
 ###############################################################################
@@ -247,13 +247,13 @@ def main():
             with pushd(package):
               prev_branch = current_branch()
 
-            if not branch_exists(git_branch):
-              track_branch(package, svn_branch, git_branch, args.search_revision)
+              if not branch_exists(git_branch):
+                track_branch(package, svn_branch, git_branch, args.search_revision)
 
-            checkout(git_branch)
-            update()
-            push(git_branch)
-            checkout(prev_branch)
+              checkout(git_branch)
+              update()
+              push(git_branch)
+              checkout(prev_branch)
           else:
             print "{} type: {} not in version {} manifest".format(package, package_type, version)
     except subprocess.CalledProcessError, e:
