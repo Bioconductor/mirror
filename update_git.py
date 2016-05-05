@@ -2,7 +2,7 @@
 ###############################################################################
 # By Jim Hester
 # Created: 2015 Mar 31 10:17:20 AM
-# Last Modified: 2016 Apr 02 07:32:06 AM
+# Last Modified: 2016 May 05 11:54:07 AM
 # Title:update_git.py
 # Purpose:Update git mirror from svn revision
 ###############################################################################
@@ -124,9 +124,9 @@ def reformat_branch_name(name):
     return None
 
 def track_branch(package, svn_branch, git_branch, revision=None):
-  subprocess.check_call(['git', 'config', '--add', 'svn-remote.{}.url'.format(git_branch),
+  subprocess.check_call(['git', 'config', 'svn-remote.{}.url'.format(git_branch),
                          '/'.join([args.svn, 'branches', svn_branch, args.prefix, package])])
-  subprocess.check_call(['git', 'config', '--add', 'svn-remote.{}.fetch'.format(git_branch),
+  subprocess.check_call(['git', 'config', 'svn-remote.{}.fetch'.format(git_branch),
                          ':refs/remotes/git-svn-{}'.format(git_branch)])
 
   cmd = ['git', 'svn', 'fetch', git_branch]
