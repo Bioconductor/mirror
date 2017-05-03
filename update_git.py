@@ -44,7 +44,7 @@ def create_github_repo(project):
                          'git@github.com:bioconductor-mirror/{}.git'.format(project)])
 
 def clone(project, revision=None):
-  cmd = ['git', 'svn', 'clone',
+  cmd = ['git', 'svn', 'clone', '--ignore-path=".git/"',
          '/'.join([args.svn, args.trunk, args.prefix, project]),
          project]
   if revision:
